@@ -1,69 +1,101 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.catscoffeeandkitchen.fitnessjournal.ui.navigation
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.catscoffeeandkitchen.domain.usecases.data.BackupDataUseCase
-import com.catscoffeeandkitchen.domain.usecases.data.RestoreDataUseCase
+import com.catscoffeeandkitchen.fitnessjournal.R
 import com.catscoffeeandkitchen.fitnessjournal.TestTags
-import com.catscoffeeandkitchen.fitnessjournal.ui.home.HomeScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.settings.SettingsScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.details.SelectPlanScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.details.WorkoutDetailsScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.exercisegroups.ExerciseGroupScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.list.WorkoutsScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.plan.WorkoutPlanEditScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.plan.list.WorkoutPlansScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.searchexercises.SearchExercisesMultiSelectScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.searchexercises.SearchExercisesScreen
-import com.catscoffeeandkitchen.fitnessjournal.ui.workouts.stats.StatsScreen
-import com.github.mikephil.charting.animation.Easing
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.catscoffeeandkitchen.fitnessjournal.services.TimerService
+import com.catscoffeeandkitchen.ui.groups.ExerciseGroupScreen
+import com.catscoffeeandkitchen.ui.search.SearchExercisesScreen
+import com.catscoffeeandkitchen.home.ui.HomeScreen
+import com.catscoffeeandkitchen.stats.ui.StatsScreen
+import com.catscoffeeandkitchen.ui.SettingsScreen
+import com.catscoffeeandkitchen.ui.SelectPlanScreen
+import com.catscoffeeandkitchen.ui.detail.WorkoutDetailsScreen
+import com.catscoffeeandkitchen.ui.detail.WorkoutPlanDetailScreen
+import com.catscoffeeandkitchen.ui.groups.detail.GroupDetailScreen
+import com.catscoffeeandkitchen.ui.list.WorkoutPlansScreen
+import com.catscoffeeandkitchen.ui.list.WorkoutsScreen
+import com.catscoffeeandkitchen.ui.navigation.FitnessJournalBottomNavigationBar
+import com.catscoffeeandkitchen.ui.navigation.FitnessJournalTopAppBar
+import com.catscoffeeandkitchen.ui.navigation.LiftingLogScreen
+import com.catscoffeeandkitchen.ui.search.SearchExercisesMultiSelectScreen
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
-fun Navigation() {
-    val navController = rememberAnimatedNavController()
+fun Navigation(
+    timerService: TimerService?,
+    onStartTimer: (Long, Long) -> Unit
+) {
+    val navController = rememberNavController()
 
-    AnimatedNavHost(
+    NavHost(
         navController,
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
-        startDestination = FitnessJournalScreen.HomeScreen.route,
+        startDestination = LiftingLogScreen.HomeScreen.route,
         enterTransition = { fadeIn(initialAlpha = .3f, animationSpec = tween(easing = FastOutSlowInEasing)) },
         exitTransition = { fadeOut(animationSpec = tween(easing = FastOutSlowInEasing)) },
     ) {
         composable(
-            FitnessJournalScreen.HomeScreen.route,
-            deepLinks = listOf(navDeepLink { uriPattern = "liftinglog://app/${FitnessJournalScreen.HomeScreen.route}" }),
+            LiftingLogScreen.HomeScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "liftinglog://app/${LiftingLogScreen.HomeScreen.route}"
+                }
+            ),
         ) {
             Scaffold(
-                topBar = { FitnessJournalTopAppBar {
-                    navController.navigate(FitnessJournalScreen.Settings.route)
-                }},
+                topBar = { 
+                    FitnessJournalTopAppBar(
+                        title = stringResource(id = R.string.app_name),
+                        showAppIcon = true,
+                        onNavigateToSettings = {
+                            navController.navigate(LiftingLogScreen.Settings.route)
+                        }
+                    )
+                },
                 bottomBar = {
                     FitnessJournalBottomNavigationBar(navController = navController)
                 },
-            )  { padding ->
+            ) { padding ->
                 HomeScreen(
                     navController,
                     modifier = Modifier.padding(padding)
@@ -72,13 +104,22 @@ fun Navigation() {
         }
 
         composable(
-            FitnessJournalScreen.WorkoutsScreen.route,
-            deepLinks = listOf(navDeepLink { uriPattern = "liftinglog://app/${FitnessJournalScreen.WorkoutsScreen.route}" }),
-            ) {
+            LiftingLogScreen.WorkoutsScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "liftinglog://app/${LiftingLogScreen.WorkoutsScreen.route}"
+                }
+            ),
+        ) {
             Scaffold(
-                topBar = { FitnessJournalTopAppBar {
-                    navController.navigate(FitnessJournalScreen.Settings.route)
-                }},
+                topBar = {
+                    FitnessJournalTopAppBar(
+                        stringResource(id = R.string.workouts),
+                        onNavigateToSettings = {
+                            navController.navigate(LiftingLogScreen.Settings.route)
+                        }
+                    )
+                },
                 bottomBar = {
                     FitnessJournalBottomNavigationBar(navController = navController)
                 },
@@ -87,7 +128,7 @@ fun Navigation() {
                     FloatingActionButton(
                         onClick = {
                             navController.navigate(
-                                FitnessJournalScreen.NewWorkoutScreen.route
+                                LiftingLogScreen.NewWorkoutScreen.route
                             )
                         },
                         modifier = Modifier.testTag(TestTags.FAB)
@@ -104,37 +145,19 @@ fun Navigation() {
         }
 
         composable(
-            FitnessJournalScreen.WorkoutPlansScreen.route,
+            LiftingLogScreen.WorkoutPlansScreen.route
         ) {
-            Scaffold(
-                topBar = { FitnessJournalTopAppBar {
-                    navController.navigate(FitnessJournalScreen.Settings.route)
-                }},
-                bottomBar = {
-                    FitnessJournalBottomNavigationBar(navController = navController)
-                },
-                floatingActionButtonPosition = FabPosition.End,
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            navController.navigate(
-                                "${FitnessJournalScreen.WorkoutPlanEditScreen.route}/0"
-                            )
-                        },
-                        modifier = Modifier.testTag(TestTags.FAB)
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "create plan")
-                    }
-                }
-            )  { padding ->
-                WorkoutPlansScreen(navController, modifier = Modifier
-                    .padding(padding)
-                )
-            }
+            WorkoutPlansScreen(navController)
         }
 
         composable(
-            FitnessJournalScreen.NewWorkoutScreen.route,
+            LiftingLogScreen.NewWorkoutScreen.route,
+            arguments = listOf(
+                navArgument("planId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                }
+            )
         ) {
             Scaffold { padding ->
                 SelectPlanScreen(
@@ -145,9 +168,9 @@ fun Navigation() {
         }
 
         composable(
-            "${FitnessJournalScreen.WorkoutDetails.route}/{workoutId}?plan={plan}",
+            "${LiftingLogScreen.WorkoutDetails.route}/{workoutId}?plan={plan}",
             deepLinks = listOf(navDeepLink {
-                uriPattern = "liftinglog://app/${FitnessJournalScreen.WorkoutDetails.route}/{workoutId}"
+                uriPattern = "liftinglog://app/${LiftingLogScreen.WorkoutDetails.route}/{workoutId}"
             }),
             arguments = listOf(
                 navArgument("workoutId") { type = NavType.LongType },
@@ -161,19 +184,21 @@ fun Navigation() {
             Scaffold { padding ->
                 WorkoutDetailsScreen(
                     navController,
+                    timerService = null,
+                    onStartTimer = onStartTimer,
                     modifier = Modifier.padding(padding)
                 )
             }
         }
 
         composable(
-            "${FitnessJournalScreen.WorkoutPlanEditScreen.route}/{workoutId}",
+            "${LiftingLogScreen.WorkoutPlanEditScreen.route}/{workoutId}",
             arguments = listOf(
                 navArgument("workoutId") { type = NavType.LongType },
             )
         ) {
-            Scaffold() { padding ->
-                WorkoutPlanEditScreen(
+            Scaffold { padding ->
+                WorkoutPlanDetailScreen(
                     navController,
                     modifier = Modifier.padding(padding)
                 )
@@ -181,12 +206,17 @@ fun Navigation() {
         }
 
         composable(
-            FitnessJournalScreen.StatsScreen.route
+            LiftingLogScreen.StatsScreen.route
         ) {
             Scaffold(
-                topBar = { FitnessJournalTopAppBar {
-                    navController.navigate(FitnessJournalScreen.Settings.route)
-                }},
+                topBar = {
+                    FitnessJournalTopAppBar(
+                        title = stringResource(id = R.string.stats),
+                        onNavigateToSettings = {
+                            navController.navigate(LiftingLogScreen.Settings.route)
+                        }
+                    )
+                },
                 bottomBar = {
                     FitnessJournalBottomNavigationBar(navController = navController)
                 }
@@ -198,7 +228,7 @@ fun Navigation() {
         }
 
         composable(
-            "${FitnessJournalScreen.SearchExercisesScreen.route}?" +
+            "${LiftingLogScreen.SearchExercisesScreen.route}?" +
                     "category={category}&muscle={muscle}",
             arguments = listOf(
                 navArgument("category") {
@@ -216,7 +246,7 @@ fun Navigation() {
             val muscle = entry.arguments?.getString("muscle")
             val category = entry.arguments?.getString("category")
 
-            Scaffold() { padding ->
+            Scaffold { padding ->
                 SearchExercisesScreen(
                     navController,
                     muscle = muscle,
@@ -227,7 +257,7 @@ fun Navigation() {
         }
 
         composable(
-            "${FitnessJournalScreen.SearchExercisesMultiSelectScreen.route}?" +
+            "${LiftingLogScreen.SearchExercisesMultiSelectScreen.route}?" +
                     "category={category}&muscle={muscle}&selectedExercises={selectedExercises}",
             arguments = listOf(
                 navArgument("category") {
@@ -258,7 +288,7 @@ fun Navigation() {
         }
 
         composable(
-            "${FitnessJournalScreen.ExerciseGroupScreen.route}?selectable={selectable}",
+            "${LiftingLogScreen.ExerciseGroupListScreen.route}?selectable={selectable}",
             arguments = listOf(
                 navArgument("selectable") {
                     type = NavType.BoolType
@@ -269,15 +299,20 @@ fun Navigation() {
             val selectable = backStackEntry.arguments?.getBoolean("selectable")
 
             Scaffold(
+                topBar = {
+                    FitnessJournalTopAppBar(
+                        title = stringResource(id = R.string.exercise_groups),
+                        onNavigateToSettings = null
+                    )
+                },
                 floatingActionButtonPosition = FabPosition.End,
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = {
                             navController.navigate(
-                                FitnessJournalScreen.SearchExercisesMultiSelectScreen.route
+                                LiftingLogScreen.SearchExercisesMultiSelectScreen.route
                             )
-                        },
-                        modifier = Modifier.testTag(TestTags.FAB)
+                        }
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "create group")
                     }
@@ -292,82 +327,37 @@ fun Navigation() {
         }
 
         composable(
-            FitnessJournalScreen.Settings.route
+            LiftingLogScreen.ExerciseGroupDetailScreen().route,
+            arguments = listOf(
+                navArgument("groupId") {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val addingExercise by backStackEntry.savedStateHandle
+                .getStateFlow<String?>("exerciseToAdd", null)
+                .collectAsState()
+
+            GroupDetailScreen(
+                addingExercise = addingExercise,
+                navigateToAddExercise = {
+                    navController.navigate(
+                        LiftingLogScreen.SearchExercisesScreen.route
+                    )
+                }
+            )
+        }
+
+        composable(
+            LiftingLogScreen.Settings.route
         )  {
-            Scaffold() { padding ->
+            Scaffold(
+                topBar = {
+                    TopAppBar(title = { Text(stringResource(id = R.string.settings)) })
+                }
+            ) { padding ->
                 SettingsScreen(modifier = Modifier.padding(padding))
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FitnessJournalTopAppBar(
-    navigateToSettings: () -> Unit,
-) {
-    TopAppBar(
-        title = {},
-        actions = {
-            IconButton(
-                onClick = { navigateToSettings() },
-                modifier = Modifier.testTag(FitnessJournalScreen.Settings.testTag)
-            ) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "go to settings"
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun FitnessJournalBottomNavigationBar(
-    navController: NavController
-) {
-    NavigationBar(
-        Modifier.testTag(TestTags.BottomNavigationBar)
-    ) {
-        NavigationBarItem(
-            selected = navController.currentDestination?.route?.contains("home") == true,
-            onClick = { navController.navigate(FitnessJournalScreen.HomeScreen.route) },
-            icon = { BottomBarIcon(screen = FitnessJournalScreen.HomeScreen) },
-            label = { Text("Home") },
-            modifier = Modifier.testTag(FitnessJournalScreen.HomeScreen.testTag)
-        )
-
-        NavigationBarItem(
-            selected = navController.currentDestination?.route?.contains("workout") == true,
-            onClick = { navController.navigate(FitnessJournalScreen.WorkoutsScreen.route) },
-            icon = { BottomBarIcon(screen = FitnessJournalScreen.WorkoutsScreen) },
-            label = { Text("Workouts") },
-            modifier = Modifier.testTag(FitnessJournalScreen.WorkoutsScreen.testTag)
-        )
-
-        NavigationBarItem(
-            selected = navController.currentDestination?.route?.contains("plans") == true,
-            onClick = { navController.navigate(FitnessJournalScreen.WorkoutPlansScreen.route) },
-            icon = { BottomBarIcon(screen = FitnessJournalScreen.WorkoutPlansScreen) },
-            label = { Text("Plans") },
-            modifier = Modifier.testTag(FitnessJournalScreen.WorkoutPlansScreen.testTag)
-        )
-
-        NavigationBarItem(
-            selected = navController.currentDestination?.route?.contains("stats") == true,
-            onClick = { navController.navigate(FitnessJournalScreen.StatsScreen.route) },
-            icon = { BottomBarIcon(screen = FitnessJournalScreen.StatsScreen) },
-            label = { Text("Stats") },
-            modifier = Modifier.testTag(FitnessJournalScreen.StatsScreen.testTag)
-        )
-    }
-}
-
-@Composable
-fun BottomBarIcon(screen: FitnessJournalScreen) {
-    if (screen.icon != null) {
-        Icon(screen.icon, stringResource(id = screen.resourceId))
-    } else {
-        Icon(painterResource(id = screen.iconId), stringResource(id = screen.resourceId))
     }
 }

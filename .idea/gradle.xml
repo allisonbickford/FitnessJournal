@@ -4,18 +4,41 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="testRunner" value="GRADLE" />
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="18" />
+        <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/data" />
-            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/common/models" />
+            <option value="$PROJECT_DIR$/common/ui" />
+            <option value="$PROJECT_DIR$/exercises" />
+            <option value="$PROJECT_DIR$/exercises/data" />
+            <option value="$PROJECT_DIR$/exercises/models" />
+            <option value="$PROJECT_DIR$/exercises/ui" />
+            <option value="$PROJECT_DIR$/exercises/youtube_player" />
+            <option value="$PROJECT_DIR$/home" />
+            <option value="$PROJECT_DIR$/home/data" />
+            <option value="$PROJECT_DIR$/home/ui" />
+            <option value="$PROJECT_DIR$/room" />
+            <option value="$PROJECT_DIR$/settings" />
+            <option value="$PROJECT_DIR$/settings/data" />
+            <option value="$PROJECT_DIR$/settings/ui" />
+            <option value="$PROJECT_DIR$/stats" />
+            <option value="$PROJECT_DIR$/stats/ui" />
+            <option value="$PROJECT_DIR$/wger_api" />
+            <option value="$PROJECT_DIR$/workoutplans" />
+            <option value="$PROJECT_DIR$/workoutplans/data" />
+            <option value="$PROJECT_DIR$/workoutplans/models" />
+            <option value="$PROJECT_DIR$/workoutplans/ui" />
+            <option value="$PROJECT_DIR$/workouts" />
+            <option value="$PROJECT_DIR$/workouts/data" />
+            <option value="$PROJECT_DIR$/workouts/models" />
+            <option value="$PROJECT_DIR$/workouts/ui" />
           </set>
         </option>
+        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

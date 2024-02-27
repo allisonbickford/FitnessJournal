@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="80dp"
+    android:minHeight="40dp"
+    android:updatePeriodMillis="1000"
+    android:description="@string/timer_appwidget_description"
+    android:initialLayout="@layout/timer_appwidget_loading"
+    android:configure="com.catscoffeeandkitchen.fitnessjournal.TimerAppWidgetConfigurationActivity"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen">
+</appwidget-provider>

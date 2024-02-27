@@ -21,10 +21,10 @@ platform :android do
     gradle(task: ":data:testDebugUnitTest")
   end
 
-  desc "Runs tests with coverage"
-    lane :testCoverage do
-      gradle(task: ":data:jacocoTestDebugUnitTestReport")
-    end
+#   desc "Runs tests with coverage"
+#     lane :testCoverage do
+#       gradle(task: ":data:jacocoTestDebugUnitTestReport")
+#     end
 
   desc "Capture screenshots"
     lane :screenshot do

@@ -72,11 +72,6 @@ class TestDataModule {
     }
 
     @Provides
-    fun provideExercisePositionDao(database: FitnessJournalDb): ExercisePositionDao {
-        return database.exercisePositionDao()
-    }
-
-    @Provides
     fun provideExerciseSetDao(database: FitnessJournalDb): ExerciseSetDao {
         return database.exerciseSetDao()
     }
@@ -104,6 +99,13 @@ class TestDataModule {
         database: FitnessJournalDb,
     ): WorkoutRepository {
         return WorkoutRepositoryImpl(database)
+    }
+
+    @Provides
+    fun provideWorkoutEntryRepository(
+        database: FitnessJournalDb,
+    ): WorkoutEntryRepository {
+        return WorkoutEntryRepositoryImpl(database)
     }
 
     @Provides

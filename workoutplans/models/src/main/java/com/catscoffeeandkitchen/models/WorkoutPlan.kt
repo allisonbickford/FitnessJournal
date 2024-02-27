@@ -1,0 +1,13 @@
+package com.catscoffeeandkitchen.models
+
+import java.time.DayOfWeek
+import java.time.OffsetDateTime
+
+data class WorkoutPlan(
+    val id: Long,
+    val addedAt: OffsetDateTime = OffsetDateTime.now(),
+    val name: String = "New Workout Plan",
+    val note: String? = null,
+    val goals: List<Goal> = emptyList(),
+    val daysOfWeek: List<DayOfWeek> = emptyList(),
+)
