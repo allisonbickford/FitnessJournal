@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/home" />
             <option value="$PROJECT_DIR$/home/data" />
             <option value="$PROJECT_DIR$/home/ui" />
+            <option value="$PROJECT_DIR$/openai_api" />
             <option value="$PROJECT_DIR$/room" />
             <option value="$PROJECT_DIR$/settings" />
             <option value="$PROJECT_DIR$/settings/data" />

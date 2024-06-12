@@ -66,7 +66,6 @@ fun EditableExerciseContent(
             Box {
                 SetDetailsInputs(
                     set,
-                    modifier = Modifier,
                     updateValue = { field ->
                         when (field) {
                             is ExerciseSetField.Complete -> {
@@ -119,16 +118,20 @@ fun EditableExerciseContent(
         }
     }
 
-    TextButton(
-        onClick = {
-            onExerciseAction(
-                ExerciseAction.AddSet(entry)
-            )
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = Spacing.Half)
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
     ) {
-        Text(stringResource(R.string.add_set))
+        TextButton(
+            onClick = {
+                onExerciseAction(
+                    ExerciseAction.AddSet(entry)
+                )
+            },
+            modifier = Modifier
+                .padding(Spacing.Half)
+        ) {
+            Text(stringResource(R.string.add_set))
+        }
     }
 }

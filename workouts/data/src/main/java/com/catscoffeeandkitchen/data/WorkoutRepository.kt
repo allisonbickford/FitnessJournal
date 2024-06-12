@@ -2,13 +2,11 @@ package com.catscoffeeandkitchen.data
 
 import androidx.paging.PagingData
 import com.catscoffeeandkitchen.data.ExerciseConverters.toEntity
-import com.catscoffeeandkitchen.data.ExerciseConverters.toExercise
 import com.catscoffeeandkitchen.data.ExerciseConverters.toSet
 import com.catscoffeeandkitchen.data.WorkoutConverters.toEntity
 import com.catscoffeeandkitchen.data.WorkoutConverters.toEntry
 import com.catscoffeeandkitchen.data.WorkoutConverters.toWorkout
 import com.catscoffeeandkitchen.models.Exercise
-import com.catscoffeeandkitchen.models.ExerciseProgressStats
 import com.catscoffeeandkitchen.models.ExerciseSet
 import com.catscoffeeandkitchen.models.SetType
 import com.catscoffeeandkitchen.models.WeightUnit
@@ -22,7 +20,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -81,8 +78,8 @@ class WorkoutRepository @Inject constructor(
             }
         }
 
-    suspend fun getSetsForExercise(exercise: Exercise): List<WorkoutEntry> {
-        return roomDataSource.getEntriesWithExercise(exercise.id)
+    suspend fun getEntriesForExercise(exerciseId: Long): List<WorkoutEntry> {
+        return roomDataSource.getEntriesWithExercise(exerciseId)
     }
 
     suspend fun createWorkout(): Long {

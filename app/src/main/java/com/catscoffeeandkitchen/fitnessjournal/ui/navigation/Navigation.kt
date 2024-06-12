@@ -46,6 +46,7 @@ import com.catscoffeeandkitchen.ui.groups.ExerciseGroupScreen
 import com.catscoffeeandkitchen.ui.search.SearchExercisesScreen
 import com.catscoffeeandkitchen.home.ui.HomeScreen
 import com.catscoffeeandkitchen.stats.ui.StatsScreen
+import com.catscoffeeandkitchen.ui.ExerciseDetailScreen
 import com.catscoffeeandkitchen.ui.SettingsScreen
 import com.catscoffeeandkitchen.ui.SelectPlanScreen
 import com.catscoffeeandkitchen.ui.detail.WorkoutDetailsScreen
@@ -242,15 +243,10 @@ fun Navigation(
                     defaultValue = null
                 },
             )
-        ) { entry ->
-            val muscle = entry.arguments?.getString("muscle")
-            val category = entry.arguments?.getString("category")
-
+        ) {
             Scaffold { padding ->
                 SearchExercisesScreen(
                     navController,
-                    muscle = muscle,
-                    category = category,
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -284,6 +280,25 @@ fun Navigation(
                 navController,
                 muscle = muscle,
                 category = category,
+            )
+        }
+
+        composable(
+            LiftingLogScreen.ExerciseDetailScreen.route,
+            arguments = listOf(
+                navArgument("exerciseId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            ExerciseDetailScreen(
+                navigateBack = { exerciseId ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("openExerciseId", exerciseId)
+
+                    navController.popBackStack()
+                }
             )
         }
 

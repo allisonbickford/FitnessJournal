@@ -67,8 +67,9 @@ class WgerPagingSource(
         page: Int
     ): SearchedExerciseData {
         val exerciseResult = service.getExercises(
-            muscle = WgerMuscle.entries
-                .find { it.coloquial.equals(muscleQuery, ignoreCase = true) },
+            muscles = listOfNotNull(
+                WgerMuscle.entries.find { it.coloquial.equals(muscleQuery, ignoreCase = true) }
+            ),
             category = WgerExerciseCategory.entries
                 .find { it.name.equals(categoryQuery, ignoreCase = true) },
             limit = PAGE_SIZE,

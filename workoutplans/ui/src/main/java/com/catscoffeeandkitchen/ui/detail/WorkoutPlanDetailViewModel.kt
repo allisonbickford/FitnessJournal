@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.catscoffeeandkitchen.data.ExerciseRepository
 import com.catscoffeeandkitchen.data.GroupRepository
 import com.catscoffeeandkitchen.data.WorkoutPlanRepository
-import com.catscoffeeandkitchen.data.WorkoutRepository
 import com.catscoffeeandkitchen.models.ExerciseGroup
 import com.catscoffeeandkitchen.models.Goal
 import com.catscoffeeandkitchen.models.WorkoutPlan
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -32,14 +32,13 @@ class WorkoutPlanDetailViewModel @Inject constructor(
     private val workoutPlanRepository: WorkoutPlanRepository,
     private val groupRepository: GroupRepository,
     private val exerciseRepository: ExerciseRepository,
-    val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
     data class PlanUIState(
         val plan: WorkoutPlan? = null,
         val isLoading: Boolean = false,
         val error: Throwable? = null
     )
-
 
     val planUiState: StateFlow<PlanUIState> = savedStateHandle
         .getStateFlow<Long?>("workoutId", initialValue = null)
@@ -62,6 +61,7 @@ class WorkoutPlanDetailViewModel @Inject constructor(
     private var _exercisesToGroup = MutableStateFlow(emptyList<String>())
     var exercisesToGroup = _exercisesToGroup
 
+    private var goalToUpdate: Goal? = null
     private var isCollectingSavedState = false
 
     fun collectSavedState(handle: SavedStateHandle) {
@@ -98,7 +98,27 @@ class WorkoutPlanDetailViewModel @Inject constructor(
                 }
         }
 
+        viewModelScope.launch {
+            handle
+                .getStateFlow<Long?>("openExerciseId", initialValue = null)
+                .collect { exerciseId ->
+                    Timber.d("Saved state updated openExerciseId = $exerciseId, goalToUpdate = ${goalToUpdate?.position}")
+                    if (exerciseId != null && goalToUpdate != null) {
+                        runCatching {
+                            val exercise = exerciseRepository.get(exerciseId).first()
+                            updateGoal(goalToUpdate!!.copy(exercise = exercise))
+                        }.onFailure {
+                            Timber.e(it)
+                        }
+                    }
+                }
+        }
+
         isCollectingSavedState = true
+    }
+
+    fun waitForGoalUpdate(goal: Goal) {
+        goalToUpdate = goal
     }
 
     fun updateGoal(goal: Goal) = viewModelScope.launch {
@@ -129,22 +149,9 @@ class WorkoutPlanDetailViewModel @Inject constructor(
         workoutPlanRepository.removeGoal(id)
     }
 
-    fun updateExercisePosition(originalSetNumber: Int, newSetNumber: Int) = viewModelScope.launch {
-        planUiState.value.plan?.let { workout ->
-            val setFromWorkout = workout.goals.find { it.position == originalSetNumber }
-            setFromWorkout?.let { set ->
-                workoutPlanRepository.moveGoal(
-                    workout.id,
-                    set,
-                    newSetNumber
-                )
-            }
-        }
-    }
-
     private fun addExercise(name: String) = viewModelScope.launch {
         planUiState.value.plan?.let { workout ->
-            val exercise = exerciseRepository.getOrCreate(name)
+            val exercise = exerciseRepository.getOrCreateWithName(name)
             Timber.d("Attempting to add exercise $exercise")
             workoutPlanRepository.addGoal(
                 workout.id,
@@ -167,10 +174,6 @@ class WorkoutPlanDetailViewModel @Inject constructor(
                 )
             )
         }
-    }
-
-    fun removeGoal(goal: Goal) = viewModelScope.launch {
-        workoutPlanRepository.removeGoal(goal.id)
     }
 
     fun updateWorkoutName(name: String) = viewModelScope.launch {

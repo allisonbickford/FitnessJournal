@@ -106,7 +106,7 @@ class WorkoutDetailsViewModel @Inject constructor(
         exerciseName: String,
     ) = viewModelScope.launch {
         uiState.value.workout?.let { workoutData ->
-            val exercise = exerciseRepository.getOrCreate(exerciseName)
+            val exercise = exerciseRepository.getOrCreateWithName(exerciseName)
             val entry = workoutData.entries.firstOrNull { it.position == exercisePosition }
             if (entry != null) {
                 workoutRepository.updateEntry(
@@ -125,7 +125,7 @@ class WorkoutDetailsViewModel @Inject constructor(
     }
 
     fun addEntryWithExerciseName(wo: Workout, name: String) = viewModelScope.launch {
-        val exercise = exerciseRepository.getOrCreate(name)
+        val exercise = exerciseRepository.getOrCreateWithName(name)
         workoutRepository.addEntry(
             wo.id,
             WorkoutEntry(

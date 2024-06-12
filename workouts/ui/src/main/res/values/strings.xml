@@ -92,6 +92,7 @@
     <string name="warm_up">warm up</string>
 
     <string name="finish_workout">Finish Workout</string>
+    <string name="last_completed">Last Completed</string>
 
     <plurals name="workouts_per_week">
         <item quantity="one">one workout per week</item>

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -53,30 +55,29 @@ import com.catscoffeeandkitchen.ui.components.LLButton
 import com.catscoffeeandkitchen.ui.muscleStrings
 import com.catscoffeeandkitchen.ui.search.create.CreateOrChangeExerciseDialog
 import com.catscoffeeandkitchen.ui.theme.Spacing
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchExercisesScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    muscle: String? = null,
-    category: String? = null,
     viewModel: SearchExercisesViewModel = hiltViewModel(),
-    ) {
-    val searchState = viewModel.search.collectAsState(
-        initial = ExerciseSearch(
-            muscle = muscle, category = category
-        )
-    )
-    val pagingItems = viewModel.pagedExerciseFlow.collectAsLazyPagingItems()
+) {
+    val coroutineScope = rememberCoroutineScope()
+
+    val uiState by viewModel.uiState.collectAsState()
+
     val lazyListState = rememberLazyListState()
     var showCreateExerciseDialog by remember { mutableStateOf(false) }
     var editingExercise by remember { mutableStateOf(null as Exercise?) }
 
-    val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(coroutineScope) {
-        if (pagingItems.itemSnapshotList.isEmpty()) {
-            viewModel.searchExercises(searchState.value)
+    LaunchedEffect(Unit) {
+        snapshotFlow { lazyListState.firstVisibleItemIndex }.collect { visibleIndex ->
+            if (uiState.hasMore && visibleIndex > (uiState.exercises.orEmpty().size - 10)) {
+                viewModel.getNextPage()
+            }
         }
     }
 
@@ -85,18 +86,20 @@ fun SearchExercisesScreen(
             isCreating = editingExercise == null,
             currentExercise = editingExercise ?:
                 Exercise(
-                    name = searchState.value.name.orEmpty().lowercase(),
+                    name = uiState.search.name.orEmpty().lowercase(),
                     musclesWorked = emptyList()
                 ),
             onDismiss = { showCreateExerciseDialog = false },
             onConfirm = { exercise ->
                 if  (editingExercise == null) {
-                    viewModel.createExercise(exercise)
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
-                        "exerciseToAdd",
-                        exercise.name
-                    )
-                    navController.popBackStack()
+                    coroutineScope.launch {
+                        viewModel.createExercise(exercise)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "exerciseToAdd",
+                            exercise.name
+                        )
+                        navController.popBackStack()
+                    }
                 } else {
                     viewModel.updateExercise(exercise)
                 }
@@ -113,20 +116,17 @@ fun SearchExercisesScreen(
             val outlineColor = MaterialTheme.colorScheme.outlineVariant
 
             SearchExerciseHeader(
-                currentSearch = searchState.value.name,
-                categoryFilter = searchState.value.category,
-                muscleFilter = searchState.value.muscle,
+                currentSearch = uiState.search.name,
+                categoryFilter = uiState.search.category,
+                muscleFilter = uiState.search.muscle,
                 onSearch = { text ->
-                    viewModel.searchExercises(searchState.value.copy(name = text))
-                    pagingItems.refresh()
+                    viewModel.searchExercises(uiState.search.copy(name = text))
                 },
                 filterMuscle = { muscle ->
-                    viewModel.searchExercises(searchState.value.copy(muscle = muscle))
-                    pagingItems.refresh()
+                    viewModel.searchExercises(uiState.search.copy(muscle = muscle))
                 },
                 filterCategory = { category ->
-                    viewModel.searchExercises(searchState.value.copy(category = category))
-                    pagingItems.refresh()
+                    viewModel.searchExercises(uiState.search.copy(category = category))
                 },
                 modifier = Modifier.drawBehind {
                     drawLine(
@@ -137,51 +137,43 @@ fun SearchExercisesScreen(
                     )
                 }
             )
+        }
 
-            (pagingItems.loadState.refresh as? LoadState.Loading)?.let {
+        items(uiState.exercises.orEmpty()) {exercise ->
+            ExerciseItem(exercise,
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.createExercise(exercise)
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("exerciseToAdd", exercise.name)
+                        navController.popBackStack()
+                    }
+                }
+            )
+
+            HorizontalDivider()
+        }
+
+        if (uiState.isLoading) {
+            item {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
 
-        items(pagingItems.itemCount) {index ->
-            val exercise = pagingItems[index]
-            if (exercise != null) {
-                ExerciseItem(exercise,
-                    onClick = {
-                        viewModel.createExercise(exercise)
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("exerciseToAdd", exercise.name)
-                        navController.popBackStack()
-                    },
-                )
-
-                HorizontalDivider()
-            }
-        }
-
-        (pagingItems.loadState.append as? LoadState.Error)?.let { state ->
-            item {
-                HorizontalDivider()
-                Text(state.error.message.toString())
-            }
-        }
-
-        if (pagingItems.loadState.append is LoadState.NotLoading) {
-            item {
-                LLButton(
-                    onClick = {
-                        editingExercise = null
-                        showCreateExerciseDialog = true
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Spacing.Default)
-                ) {
-                    Text(stringResource(R.string.create_exercise))
-                }
+        item {
+            LLButton(
+                onClick = {
+                    editingExercise = null
+                    showCreateExerciseDialog = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.Default)
+            ) {
+                Text(stringResource(R.string.create_exercise))
             }
         }
     }

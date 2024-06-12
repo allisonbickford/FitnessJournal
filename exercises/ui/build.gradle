@@ -52,8 +52,10 @@ android {
 dependencies {
     implementation project(":common:models")
     implementation project(":common:ui")
+    implementation project(":settings:data")
     implementation project(":exercises:models")
     implementation project(":exercises:data")
+    implementation project(":exercises:youtube_player")
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
@@ -92,6 +94,7 @@ dependencies {
 
     // Image Loading - Coil
     implementation libs.coil
+    implementation libs.coil.gif
 
     // Charts
     implementation libs.vico.compose.m3

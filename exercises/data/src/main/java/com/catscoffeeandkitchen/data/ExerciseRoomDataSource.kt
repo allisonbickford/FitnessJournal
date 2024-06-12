@@ -6,6 +6,7 @@ import com.catscoffeeandkitchen.models.EquipmentType
 import com.catscoffeeandkitchen.models.Exercise
 import com.catscoffeeandkitchen.models.ExerciseGroup
 import com.catscoffeeandkitchen.models.ExerciseProgressStats
+import com.catscoffeeandkitchen.models.ExerciseSet
 import com.catscoffeeandkitchen.models.MuscleCategory
 import com.catscoffeeandkitchen.room.dao.EntryDao
 import com.catscoffeeandkitchen.room.dao.ExerciseDao
@@ -24,25 +25,10 @@ import javax.inject.Inject
 
 class ExerciseRoomDataSource @Inject constructor(
     private val exerciseDao: ExerciseDao,
-    private val groupDao: ExerciseGroupDao,
     private val entryDao: EntryDao,
     private val setDao: ExerciseSetDao
 ) {
-    fun getFlow(id: Long): Flow<Exercise> = exerciseDao
-        .get(id).map { ex ->
-            Exercise(
-                id = ex.eId,
-                name = ex.name,
-                aliases = ex.aliases,
-                musclesWorked = ex.musclesWorked,
-                category = MuscleCategory.entries.firstOrNull { it.name == ex.category },
-                variations = emptyList(),
-                imageUrl = ex.imageUrl,
-                equipment = ex.equipment.map { EquipmentType.valueOf(it) },
-                amountOfSets = null,
-                stats = null
-            )
-        }
+    fun getFlow(id: Long): Flow<ExerciseEntity> = exerciseDao.get(id)
 
     suspend fun getByName(name: String): ExerciseEntity? {
         return exerciseDao.getExerciseByName(name)
@@ -54,11 +40,23 @@ class ExerciseRoomDataSource @Inject constructor(
 
     suspend fun getAll(): List<ExerciseWithAmountPerformed> = exerciseDao.getAllExercises()
 
+    suspend fun getSetsForExercise(exercise: Exercise): List<ExerciseSet> {
+        return setDao.getAllCompletedSetsForExercise(exercise.id).map { it.toSet() }
+    }
+
     fun searchExercises(
         search: String,
         muscle: String,
-        category: String
-    ) = exerciseDao.searchExercises(search, muscle, category, limit = 100, offset = 0)
+        category: String,
+        limit: Int = 100,
+        offset: Int = 0
+    ) = exerciseDao.searchExercises(
+        search = search,
+        muscle = muscle,
+        category = category,
+        limit = limit,
+        offset = offset
+    )
 
     suspend fun create(entity: ExerciseEntity): Long {
         return exerciseDao.insert(entity)

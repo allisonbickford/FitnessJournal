@@ -15,7 +15,8 @@ interface WgerEndpoints {
     suspend fun getExercises(
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0,
-        @Query("muscles") muscles: Int? = null,
+        @Query("muscles", encoded = true) muscles: String? = null,
+        @Query("muscles_secondary", encoded = true) secondaryMuscles: String? = null,
         @Query("category") category: Int? = null,
         @Query("language") language: Int = 2, // 2 = english
     ): WgerPage<WgerExerciseInfoItem>

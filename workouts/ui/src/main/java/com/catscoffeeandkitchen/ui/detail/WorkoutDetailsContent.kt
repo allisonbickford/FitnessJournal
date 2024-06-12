@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,21 +15,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.catscoffeeandkitchen.models.Exercise
+import com.catscoffeeandkitchen.models.ExerciseGroup
 import com.catscoffeeandkitchen.models.ExerciseSet
 import com.catscoffeeandkitchen.models.WeightUnit
 import com.catscoffeeandkitchen.models.Workout
@@ -40,9 +40,12 @@ import com.catscoffeeandkitchen.ui.R
 import com.catscoffeeandkitchen.ui.components.LLButton
 import com.catscoffeeandkitchen.ui.components.LLOutlinedButton
 import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseAction
-import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseItem
+import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseActionRow
+import com.catscoffeeandkitchen.ui.detail.exercise.EntrySets
 import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseNavigationAction
+import com.catscoffeeandkitchen.ui.detail.exercise.GroupActionRow
 import com.catscoffeeandkitchen.ui.services.TimerService
+import com.catscoffeeandkitchen.ui.stats.ExerciseStatsBottomSheetModal
 import com.catscoffeeandkitchen.ui.theme.LiftingLogTheme
 import com.catscoffeeandkitchen.ui.theme.Spacing
 import timber.log.Timber
@@ -65,6 +68,8 @@ fun WorkoutDetailsContent(
     val (startTimerOnSetFinish, setTimerOnStartFinish) = rememberSaveable { mutableStateOf(false) }
     val (selectedTimer, setSelectedTimer) = remember { mutableLongStateOf(30L) }
     val secondsOnTimer = timerService?.secondsFlow?.collectAsState(initial = null)
+
+    var modalEntry by remember { mutableStateOf<WorkoutEntry?>(null) }
 
     val lazyListState = rememberLazyListState()
 
@@ -118,16 +123,13 @@ fun WorkoutDetailsContent(
                 HorizontalDivider()
             }
 
-            ExerciseItem(
-                entry,
+            EntrySets(
+                entry = entry,
                 goal = plan?.goals?.firstOrNull { it.position == entry.position },
                 unit = unit,
-                isFirstExercise = index == 0,
-                isLastExercise = index == workout.entries.lastIndex,
                 personalBest = personalBests
                     .firstOrNull { it.exercise != null && it.exercise?.id == entry.exercise?.id },
                 onExerciseAction = onExerciseAction,
-                onNavigationAction = onNavigationAction,
                 onCompleteSet = { time ->
                     if (startTimerOnSetFinish && time != null) {
                         Timber.d("Auto-starting timer for $selectedTimer seconds")
@@ -136,6 +138,9 @@ fun WorkoutDetailsContent(
                         Timber.d("Auto-Start Timer = $startTimerOnSetFinish")
                         Timber.d("Set was completed = ${time != null}")
                     }
+                },
+                onOpenEntryModal = {
+                    modalEntry = entry
                 },
                 modifier = Modifier.animateItemPlacement()
             )
@@ -175,6 +180,72 @@ fun WorkoutDetailsContent(
             }
         }
     }
+
+    modalEntry?.let { entry ->
+        EntryBottomSheetModal(
+            entry = entry,
+            unit = unit,
+            canMoveUp = workout.entries.first().position < entry.position,
+            canMoveDown = workout.entries.last().position > entry.position,
+            onExerciseAction = {
+                onExerciseAction(it)
+                modalEntry = null
+            },
+            onNavigationAction = {
+                onNavigationAction(it)
+                modalEntry = null
+            },
+            onDismiss = {
+                modalEntry = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun EntryBottomSheetModal(
+    entry: WorkoutEntry,
+    unit: WeightUnit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onExerciseAction: (ExerciseAction) -> Unit,
+    onNavigationAction: (ExerciseNavigationAction) -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (entry.exercise != null) {
+        ExerciseStatsBottomSheetModal(
+            exerciseId = entry.exercise?.id ?: 0L,
+            onDismiss = onDismiss
+        ) {
+            ExerciseActionRow(
+                entry = entry,
+                unit = unit,
+                canMoveUp = canMoveUp,
+                canMoveDown = canMoveDown,
+                onExerciseAction = onExerciseAction,
+                onNavigationAction = onNavigationAction,
+                modifier = Modifier.padding(vertical = Spacing.Default)
+            )
+        }
+    } else if (entry.group != null) {
+        GroupBottomSheetModal(
+            group = entry.group ?: ExerciseGroup(
+                id = 0,
+                name = null,
+                exercises = emptyList()
+            ),
+            onDismiss = onDismiss
+        ) {
+            GroupActionRow(
+                entry = entry,
+                canMoveUp = canMoveUp,
+                canMoveDown = canMoveDown,
+                onExerciseAction = onExerciseAction,
+                onNavigationAction = onNavigationAction,
+                modifier = Modifier.padding(vertical = Spacing.Default)
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -192,6 +263,16 @@ fun WorkoutDetailsPreview() {
                         id = 2,
                         setNumber = 1,
                         reps = 10
+                    ),
+                    ExerciseSet(
+                        id = 3,
+                        setNumber = 2,
+                        reps = 8
+                    ),
+                    ExerciseSet(
+                        id = 4,
+                        setNumber = 3,
+                        reps = 8
                     )
                 ),
                 group = null,

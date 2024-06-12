@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,15 +25,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.catscoffeeandkitchen.models.ExerciseSet
 import com.catscoffeeandkitchen.models.SetType
 import com.catscoffeeandkitchen.models.WeightUnit
+import com.catscoffeeandkitchen.ui.R
+import com.catscoffeeandkitchen.ui.abbreviation
 import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseSetField
 import com.catscoffeeandkitchen.ui.detail.exercise.InputToDisplay
 import com.catscoffeeandkitchen.ui.theme.LiftingLogTheme
 import com.catscoffeeandkitchen.ui.theme.Spacing
+import com.catscoffeeandkitchen.ui.toCleanString
 import java.time.OffsetDateTime
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -42,31 +48,18 @@ fun SetFieldsSection(
     unit: WeightUnit,
     labelColor: Color,
     updateValue: (ExerciseSetField) -> Unit,
-    onOpenOptions: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val setColor = when {
-        set.isComplete -> MaterialTheme.colorScheme.surfaceContainerHigh
-        set.type == SetType.WarmUp -> MaterialTheme.colorScheme.secondaryContainer
-        else -> MaterialTheme.colorScheme.primaryContainer
-    }
-
     var openInput by remember { mutableStateOf(null as InputToDisplay?) }
     var useKeyboard by remember { mutableStateOf(false) }
 
-    Column(
+    Box(
         modifier = modifier
-            .combinedClickable(
-                onClick = {},
-                onLongClick = {
-                    onOpenOptions()
-                }
-            )
             .fillMaxWidth()
-            .background(setColor)
     ) {
         Row(
             modifier = Modifier
+                .padding(vertical = Spacing.Quarter)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -105,10 +98,8 @@ fun SetFieldsSection(
             )
 
             SetInput(
-                value = if (unit == WeightUnit.Pounds)
-                    set.weightInPounds.toString() else
-                    set.weightInKilograms.toString(),
-                label = if (unit == WeightUnit.Pounds) "lbs" else "kg",
+                value = set.weight(unit).toCleanString(),
+                label = unit.abbreviation(),
                 labelColor = labelColor,
                 isSetComplete = set.isComplete,
                 updateValue = { value ->
@@ -170,6 +161,20 @@ fun SetFieldsSection(
                 }
             )
         }
+
+        if (set.type == SetType.WarmUp) {
+            Text(
+                stringResource(id = R.string.warm_up),
+                style = MaterialTheme.typography.labelSmall,
+                color = labelColor,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(
+                        top = Spacing.Quarter,
+                        start = Spacing.Half
+                    )
+            )
+        }
     }
 
     SetInputButtonsSection(
@@ -201,8 +206,7 @@ fun SetFieldsSectionPreview() {
                 ),
                 unit = WeightUnit.Pounds,
                 labelColor = MaterialTheme.colorScheme.onBackground,
-                updateValue = { },
-                onOpenOptions = { }
+                updateValue = { }
             )
         }
     }
@@ -220,12 +224,12 @@ fun SetFieldsSectionPreviewDark() {
             SetFieldsSection(
                 set = ExerciseSet(
                     id = 1L,
-                    reps = 10
+                    reps = 10,
+                    type = SetType.WarmUp
                 ),
                 unit = WeightUnit.Pounds,
                 labelColor = MaterialTheme.colorScheme.onBackground,
-                updateValue = { },
-                onOpenOptions = { }
+                updateValue = { }
             )
         }
     }

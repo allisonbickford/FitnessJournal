@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -84,8 +85,9 @@ fun WorkoutPlansScreenContent(
 
     val state by viewModel.plans.collectAsState()
 
-    LazyColumn(modifier = modifier
-        .background(MaterialTheme.colorScheme.background),
+    LazyColumn(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background),
     ) {
         if (state.isLoading) {
             item {
@@ -119,59 +121,17 @@ fun WorkoutPlansScreenContent(
                 HorizontalDivider()
             }
         }
+
+        if (state.plans?.isEmpty() == true) {
+            item {
+                Text(
+                    "Plans you create will show here",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
-//
-//    Timber.d(viewModel.workouts.value.toString())
-//        when (val workouts = viewModel.workouts.value) {
-//            is DataState.Loading -> {
-//                Column(
-//                    modifier = modifier
-//                        .fillMaxSize()
-//                        .background(MaterialTheme.colorScheme.background),
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.Center
-//                ) {
-//                    Box(modifier = Modifier.fillMaxSize(.3f)) {
-//                        CircularProgressIndicator()
-//                    }
-//                }
-//            }
-//            is DataState.Success -> {
-//                if (workouts.data.isNotEmpty()) {
-//                        LazyColumn(modifier = modifier
-//                            .background(MaterialTheme.colorScheme.background)
-//                            .testTag(TestTags.ScrollableComponent),
-//                        ) {
-//                            items(workouts.data) { item ->
-//                                WorkoutPlanSummaryCard(
-//                                    item,
-//                                    onTap = {
-//                                        navController.navigate(
-//                                            "${LiftingLogScreen.WorkoutPlanEditScreen.route}/${item.id}"
-//                                        )
-//                                    }
-//                                )
-//                            }
-//                        }
-//                } else {
-//                    EmptyWorkoutList(
-//                        modifier = modifier,
-//                    )
-//                }
-//            }
-//            is DataState.Error -> {
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .background(MaterialTheme.colorScheme.background),
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.Center
-//                ) {
-//                    Text(workouts.e.message ?: "unknown error")
-//                }
-//            }
-//            is DataState.NotSent -> {}
-//        }
 }
 
 @Preview

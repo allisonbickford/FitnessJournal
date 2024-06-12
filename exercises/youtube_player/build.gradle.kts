@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -12,29 +14,46 @@ android {
         minSdk = 26
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
+        consumerProguardFiles.add(File("consumer-rules.pro"))
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("secure.properties").inputStream())
+        buildConfigField("String", "YOUTUBE_API_KEY", properties.getProperty("YOUTUBE_API_KEY"))
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+            proguardFiles.add(
+                getDefaultProguardFile("proguard-android-optimize.txt")
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
+        freeCompilerArgs += listOf(
+            "-Xjvm-default=all",
+            "-Xopt-in=kotlin.RequiresOptIn"
+        )
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
 }
 
 dependencies {
-    implementation(project(":common:models"))
     implementation(project(":common:ui"))
 
     implementation(libs.androidx.core.ktx)
@@ -47,7 +66,10 @@ dependencies {
 
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.webkit)
+    debugImplementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
+
     implementation(libs.androidx.material3)
 
     // Coroutines
@@ -66,6 +88,17 @@ dependencies {
 
     // Image Loading - Coil
     implementation(libs.coil)
+
+    // retrofit
+    implementation(libs.retrofit)
+    // moshi converter
+    ksp(libs.moshi.codegen)
+    implementation(libs.moshi.kotlin)
+
+    //okhttp + logging
+    api(libs.okhttp.interceptors.logging)
+    api(libs.retrofit)
+    implementation(libs.converter.moshi)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

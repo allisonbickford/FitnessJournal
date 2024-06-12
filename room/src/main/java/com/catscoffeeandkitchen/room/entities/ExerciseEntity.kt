@@ -27,5 +27,6 @@ data class ExerciseEntity(
     val variationOf: Long? = null,
     val userCreated: Boolean = true,
     val imageUrl: String? = null,
+    val instructions: String? = null,
     val equipment: List<String> = emptyList()
 )

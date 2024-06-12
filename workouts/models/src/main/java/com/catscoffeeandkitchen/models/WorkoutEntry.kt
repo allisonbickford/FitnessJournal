@@ -1,5 +1,6 @@
 package com.catscoffeeandkitchen.models
 
+import java.time.OffsetDateTime
 import kotlin.math.roundToInt
 
 data class WorkoutEntry(
@@ -14,6 +15,9 @@ data class WorkoutEntry(
 
     val setsComplete: Boolean
         get() = sets.all { it.isComplete }
+
+    val completedAt: OffsetDateTime?
+        get() = sets.filter { it.isComplete }.maxOfOrNull { it.completedAt!! }
 
     val isSingleSide: Boolean
         get() = sets.any { it.modifiers.orEmpty().contains(SetModifier.SingleSide) }

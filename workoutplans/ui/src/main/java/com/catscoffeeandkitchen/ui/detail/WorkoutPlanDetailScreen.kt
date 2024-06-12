@@ -1,23 +1,13 @@
 package com.catscoffeeandkitchen.ui.detail
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,9 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -38,16 +28,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.catscoffeeandkitchen.models.Exercise
 import com.catscoffeeandkitchen.models.Goal
-import com.catscoffeeandkitchen.models.WorkoutPlan
-import com.catscoffeeandkitchen.ui.AddExerciseOrGroupButtons
-import com.catscoffeeandkitchen.ui.ExerciseDetailContent
-import com.catscoffeeandkitchen.ui.GoalItem
+import com.catscoffeeandkitchen.ui.ExerciseDetailScreen
 import com.catscoffeeandkitchen.ui.PlanAction
-import com.catscoffeeandkitchen.ui.WeekRow
 import com.catscoffeeandkitchen.ui.navigation.LiftingLogScreen
 import com.catscoffeeandkitchen.ui.theme.Spacing
 import com.catscoffeeandkitchen.workoutplans.ui.R
-import timber.log.Timber
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,9 +43,9 @@ fun WorkoutPlanDetailScreen(
     viewModel: WorkoutPlanDetailViewModel = hiltViewModel(),
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
 ) {
-    val state by viewModel.planUiState.collectAsState()
+    val focusManager = LocalFocusManager.current
 
-    var exerciseModal by remember { mutableStateOf(null as Long?) }
+    val state by viewModel.planUiState.collectAsState()
 
     var exerciseToRemove by remember { mutableStateOf(null as Exercise?) }
     val showExerciseGroupNameDialog by viewModel.showExerciseGroupNameDialog.collectAsState()
@@ -98,15 +83,19 @@ fun WorkoutPlanDetailScreen(
     if (exerciseToRemove != null) {
         AlertDialog(
             onDismissRequest = { exerciseToRemove = null },
-            confirmButton = { TextButton(onClick = {
-                exerciseToRemove?.let {
-                    viewModel.removeGoal(it.id)
-                }
-                exerciseToRemove = null
-            }) { Text(stringResource(R.string.remove)) }},
-            dismissButton = { TextButton(onClick = {
-                exerciseToRemove = null
-            }) { Text(stringResource(R.string.cancel)) }},
+            confirmButton = {
+                TextButton(onClick = {
+                    exerciseToRemove?.let {
+                        viewModel.removeGoal(it.id)
+                    }
+                    exerciseToRemove = null
+                }) { Text(stringResource(R.string.remove)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    exerciseToRemove = null
+                }) { Text(stringResource(R.string.cancel)) }
+            },
             title = {
                 Text(
                     exerciseToRemove?.let {
@@ -143,7 +132,16 @@ fun WorkoutPlanDetailScreen(
         state.plan?.let { plan ->
             planItems(
                 plan = plan,
-                onOpenExercise = { exerciseModal = it },
+                onOpenExercise = {
+                    viewModel.waitForGoalUpdate(it)
+
+                    focusManager.clearFocus(force = true)
+                    it.exercise?.id?.let { exerciseId ->
+                        navController.navigate(
+                            LiftingLogScreen.ExerciseDetailScreen.routeWithArgs("$exerciseId")
+                        )
+                    }
+                },
                 onOpenGroup = {
                     navController.navigate(
                         LiftingLogScreen.ExerciseGroupDetailScreen()
@@ -155,48 +153,46 @@ fun WorkoutPlanDetailScreen(
                         PlanAction.AddExercise -> {
                             navController.navigate(LiftingLogScreen.SearchExercisesScreen.route)
                         }
+
                         PlanAction.AddExerciseGroup -> {
                             navController.navigate("${LiftingLogScreen.ExerciseGroupListScreen.route}?selectable=true")
                         }
+
                         is PlanAction.RemoveExercise -> {
                             exerciseToRemove = action.exercise
                         }
+
                         PlanAction.StartWorkout -> {
                             viewModel.createWorkoutFromPlan()
                             navController.navigate(LiftingLogScreen.WorkoutsScreen.route)
                         }
+
                         is PlanAction.UpdateWeekdays -> {
                             viewModel.updateWeekdays(action.weekdays)
                         }
+
                         is PlanAction.UpdateWorkoutName -> {
                             viewModel.updateWorkoutName(action.name)
                         }
+
                         is PlanAction.UpdateWorkoutNotes -> {
                             viewModel.updateWorkoutNotes(action.notes)
                         }
+
                         is PlanAction.UpdateGoal -> {
                             viewModel.updateGoal(action.goal)
                         }
+
                         is PlanAction.RepositionGoal -> {
                             viewModel.repositionGoal(action.goal, action.position)
                         }
+
                         is PlanAction.RemoveGoal -> {
                             viewModel.removeGoal(action.goalId)
                         }
                     }
                 }
             )
-        }
-    }
-
-    exerciseModal?.let { id ->
-        ModalBottomSheet(
-            onDismissRequest = {
-                exerciseModal = null
-            }
-        ) {
-            Timber.d("Opening Exercise $id")
-            ExerciseDetailContent(id)
         }
     }
 }

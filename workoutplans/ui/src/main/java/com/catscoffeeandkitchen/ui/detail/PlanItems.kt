@@ -39,7 +39,7 @@ fun LazyListScope.planItems(
     plan: WorkoutPlan,
     onPlanAction: (PlanAction) -> Unit,
     onOpenGroup: (Long) -> Unit,
-    onOpenExercise: (Long) -> Unit
+    onOpenExercise: (Goal) -> Unit
 ) {
     item {
         var editedPlanName by remember { mutableStateOf(plan.name) }
@@ -138,7 +138,7 @@ fun LazyListScope.planItems(
 private fun LazyListScope.goalItems(
     goals: List<Goal>,
     onOpenGroup: (Long) -> Unit,
-    onOpenExercise: (Long) -> Unit,
+    onOpenExercise: (Goal) -> Unit,
     onPlanAction: (PlanAction) -> Unit
 ) {
     items(goals) { goal ->
@@ -152,7 +152,7 @@ private fun LazyListScope.goalItems(
                 if (goal.group != null) {
                     goal.group?.id?.let { onOpenGroup(it) }
                 } else if (goal.exercise != null) {
-                    goal.exercise?.id?.let { onOpenExercise(it) }
+                    goal.exercise?.let { onOpenExercise(goal) }
                 }
             },
             onGoalAction = onPlanAction,

@@ -58,6 +58,8 @@ dependencies {
     implementation project(":workoutplans:data")
     implementation project(":exercises:models")
     implementation project(":exercises:data")
+    implementation project(":exercises:ui")
+    implementation project(':exercises:youtube_player')
     implementation project(":settings:data")
 
     implementation libs.androidx.core.ktx

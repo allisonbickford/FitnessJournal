@@ -89,6 +89,8 @@
     <string name="name">name</string>
     <string name="group_name">group name</string>
     <string name="add_exercise">Add Exercise</string>
+    <string name="lbs">lbs</string>
+    <string name="kg">kg</string>
 
     <plurals name="workouts_per_week">
         <item quantity="one">one workout per week</item>

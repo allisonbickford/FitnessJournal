@@ -35,6 +35,7 @@ dependencies {
     implementation project(":common:ui")
     implementation project(":room")
     implementation project(":wger_api")
+    implementation project(":openai_api")
     implementation project(":exercises:models")
 
     implementation libs.androidx.core.ktx

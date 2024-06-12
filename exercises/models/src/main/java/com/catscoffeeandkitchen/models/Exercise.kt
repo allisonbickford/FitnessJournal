@@ -9,6 +9,7 @@ data class Exercise(
     val variations: List<Exercise> = emptyList(),
     val imageUrl: String? = null,
     val equipment: List<EquipmentType> = emptyList(),
+    val instructions: String? = null,
     val amountOfSets: Int? = null,
     val stats: Stats? = null
 )

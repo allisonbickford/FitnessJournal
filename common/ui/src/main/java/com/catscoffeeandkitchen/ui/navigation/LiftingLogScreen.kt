@@ -67,6 +67,18 @@ sealed class LiftingLogScreen(
         resourceId = R.string.search_exercises,
         testTag = "SearchExercisesNavItem"
     )
+    data object ExerciseDetailScreen : LiftingLogScreen(
+        route = "exercises/{exerciseId}",
+        resourceId = R.string.search_exercises,
+        testTag = "ExerciseDetailNavItem"
+    ) {
+        override fun routeWithArgs(vararg args: String): String {
+            require(args.size == 1)
+
+            return route
+                .replace("{exerciseId}", args.first())
+        }
+    }
     data object SearchExercisesMultiSelectScreen : LiftingLogScreen(
         route = "exercises/multiselect",
         resourceId = R.string.search_exercises_multi,

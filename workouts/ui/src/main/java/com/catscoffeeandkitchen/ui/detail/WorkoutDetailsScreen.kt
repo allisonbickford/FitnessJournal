@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,10 +20,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.catscoffeeandkitchen.models.WeightUnit
+import com.catscoffeeandkitchen.models.WorkoutEntry
 import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseAction
+import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseActionRow
 import com.catscoffeeandkitchen.ui.detail.exercise.ExerciseNavigationAction
 import com.catscoffeeandkitchen.ui.navigation.LiftingLogScreen
 import com.catscoffeeandkitchen.ui.services.TimerService
+import com.catscoffeeandkitchen.ui.stats.ExerciseStatsBottomSheetModal
 import timber.log.Timber
 
 @Composable
@@ -51,8 +57,8 @@ fun WorkoutDetailsScreen(
         modifier = modifier
     ) {
         val uiState by viewModel.uiState.collectAsState()
-        val unit by viewModel.weightUnit.collectAsState(initial = WeightUnit.Pounds)
         val timers by viewModel.timers.collectAsState(initial = emptyList())
+        val unit by viewModel.weightUnit.collectAsState(initial = WeightUnit.Pounds)
 
         uiState.exception?.let { error ->
             Column(modifier = Modifier.fillMaxSize()) {

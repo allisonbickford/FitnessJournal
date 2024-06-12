@@ -22,6 +22,7 @@ object ExerciseConverters {
             variationOf = null,
             userCreated = false,
             imageUrl = imageUrl,
+            instructions = instructions,
             equipment = equipment.map { it.name }
         )
     }
@@ -39,11 +40,11 @@ object ExerciseConverters {
             category = category?.let { MuscleCategory.valueOf(it) },
             imageUrl = imageUrl,
             variations = variations,
+            instructions = instructions,
             amountOfSets = amountOfSets,
             stats = stats
         )
     }
-
 
     fun ExerciseSet.toEntity(
         entryId: Long,
