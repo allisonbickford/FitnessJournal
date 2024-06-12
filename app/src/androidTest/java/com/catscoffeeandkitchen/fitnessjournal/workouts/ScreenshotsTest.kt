@@ -1,7 +1,20 @@
 package com.catscoffeeandkitchen.fitnessjournal.workouts
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToKey
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import com.catscoffeeandkitchen.data.workouts.db.ExerciseDao
 import com.catscoffeeandkitchen.data.workouts.db.FitnessJournalDb
 import com.catscoffeeandkitchen.data.workouts.models.exercise.ExerciseEntity
@@ -12,11 +25,12 @@ import com.catscoffeeandkitchen.fitnessjournal.ui.navigation.FitnessJournalScree
 import com.catscoffeeandkitchen.fitnessjournal.ui.navigation.Navigation
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.HiltTestApplication
-import kotlinx.coroutines.*
-import org.junit.*
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.ClassRule
+import org.junit.Rule
+import org.junit.Test
 import tools.fastlane.screengrab.Screengrab
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy
 import tools.fastlane.screengrab.cleanstatusbar.CleanStatusBar
@@ -100,7 +114,10 @@ class ScreenshotsTest {
         }
 
         composeTestRule.setContent {
-            Navigation()
+            Navigation(
+                timerService = null,
+                onStartTimer = { _, _ -> }
+            )
         }
     }
 

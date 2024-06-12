@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="group_error_message">There was an error getting this exercise group.</string>
+    <string name="group_x">group %1$s</string>
+
+    <string name="add_lbs_to_hit_pr">add %1$s lbs to hit a PR!</string>
+    <string name="add_kg_to_hit_pr">add %1$s kg to hit a PR!</string>
+
+    <string name="rename_group">Rename Group</string>
+    <string name="exercise_group">Exercise Group</string>
+
+    <string name="sets">sets</string>
+    <string name="reps">reps</string>
+    <string name="min_reps">min reps</string>
+    <string name="max_reps">max reps</string>
+    <string name="reps_in_reserve">reps in reserve</string>
+    <string name="perceived_exertion">perceived exertion</string>
+
+    <string name="started_x">started %1$s</string>
+    <string name="finished_x">finished %1$s</string>
+
+    <string name="change_plates">change plates</string>
+    <string name="generic_error_message">An error occurred.</string>
+    <string name="name">name</string>
+    <string name="group_name">group name</string>
+
+    <string name="add_set">Add Set</string>
+    <string name="add_exercise">Add Exercise</string>
+
+    <string name="arms">Arms</string>
+    <string name="legs">Legs</string>
+    <string name="chest">Chest</string>
+    <string name="back">Back</string>
+    <string name="abs">Abs</string>
+
+    <string name="hamstrings">Hamstrings</string>
+    <string name="calves">Calves</string>
+    <string name="glutes">Glutes</string>
+    <string name="quads">Quads</string>
+    <string name="biceps">Biceps</string>
+    <string name="triceps">Triceps</string>
+    <string name="lats">Lats</string>
+    <string name="create_exercise">Create Exercise</string>
+    <string name="area_worked">Area Worked</string>
+    <string name="muscles_worked">Muscles Worked</string>
+    <string name="category">Category</string>
+    <string name="exercise_type">Exercise Type</string>
+    <string name="equipment">Equipment</string>
+
+    <array name="search_exercise_category">
+        <item>Chest</item>
+        <item>Abs</item>
+        <item>Legs</item>
+        <item>Shoulders</item>
+        <item>Arms</item>
+        <item>Back</item>
+    </array>
+
+    <array name="search_muscles">
+        <item>Pecs</item>
+        <item>Quads</item>
+        <item>Triceps</item>
+        <item>Abs</item>
+        <item>Glutes</item>
+        <item>Lats</item>
+    </array>
+</resources>

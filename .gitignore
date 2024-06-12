@@ -87,3 +87,5 @@ lint/tmp/
 # lint/reports/
 
 coverage-report
+
+secure.properties

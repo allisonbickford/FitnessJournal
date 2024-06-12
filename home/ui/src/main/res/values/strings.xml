@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plates_to_use">Plates to Use</string>
+    <string name="plate_kg">%skg</string>
+    <string name="plate_lbs">%slbs</string>
+    <string name="lbs_left">%s lbs left</string>
+    <string name="lbs_needed">%s lbs needed</string>
+    <string name="kgs_left">%s kg left</string>
+    <string name="kgs_needed">%s kg needed</string>
+    <string name="explanation_for_special_use">Used for timers and displaying workout progress.</string>
+    <string name="timer_notification_channel_description">Keep the timers running while you\'re away from the app.</string>
+    <string name="timer">Timer</string>
+    <string name="create_plan_from_this_workout">Create Plan from this Workout</string>
+    <string name="notification_permission_explanation">Notifications are only shown to display seconds left on a timer you start.</string>
+    <string name="cancel">Cancel</string>
+    <string name="timer_appwidget_description">Display workout functions alongside a timer.</string>
+    <string name="start_workout">start workout</string>
+    <string name="over_x_minutes">over %1$s minutes</string>
+    <string name="over_x_hours">over %1$s hours</string>
+    <string name="over_x_days">over %1$s days</string>
+    <string name="over_x_months">over %1$s months</string>
+    <string name="over_x_years">over %1$s years</string>
+    <string name="since_date">since %1$s</string>
+    <string name="x_increased_calculated_1rm">%1$s\%% increased (calculated 1RM)</string>
+    <string name="save">Save</string>
+
+    <string name="next_workout">Next Workout</string>
+    <string name="no_workouts_planned">No more workouts planned for this week!</string>
+    <string name="next_workout_error_message">There was a problem getting the next workout plan.</string>
+
+    <string name="last_exercises">Last Exercises</string>
+    <string name="last_exercises_error">There was a problem getting last exercises.</string>
+    <string name="no_last_exercises">No exercises completed recently.</string>
+
+    <string name="average_week">Average Week</string>
+    <string name="most_common_days">most common days</string>
+    <string name="no_average_week">Not enough data to report weekly stats.</string>
+    <string name="average_week_error">There was an error calculating weekly stats.</string>
+
+    <string name="most_improved_exercise">Most improved exercise</string>
+    <string name="no_improved_exercise">Not enough data to calculate this information.</string>
+    <string name="most_improved_exercise_error">There was an error calculating this data.</string>
+
+    <plurals name="workouts_per_week">
+        <item quantity="one">one workout per week</item>
+        <item quantity="other">%1$s workouts per week</item>
+    </plurals>
+
+</resources>

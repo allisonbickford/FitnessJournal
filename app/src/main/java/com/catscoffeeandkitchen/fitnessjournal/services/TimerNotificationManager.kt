@@ -9,20 +9,16 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import com.catscoffeeandkitchen.fitnessjournal.MainActivity
 import com.catscoffeeandkitchen.fitnessjournal.R
-import com.catscoffeeandkitchen.fitnessjournal.ui.navigation.FitnessJournalScreen
+import com.catscoffeeandkitchen.ui.navigation.LiftingLogScreen
 
 class TimerNotificationManager {
-
-    companion object {
-        const val CancelTimerAction = "com.catscoffeeandkitchen.fitnessjournal.CancelTimer"
-    }
 
     fun createNotification(context: Context, workoutId: Long?, seconds: Long, startingSeconds: Long): Notification {
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             data = if (workoutId != null) {
-                Uri.parse("liftinglog://app/${FitnessJournalScreen.WorkoutDetails.route}/$workoutId" )
+                Uri.parse("liftinglog://app/${LiftingLogScreen.WorkoutDetails.route}/$workoutId" )
             } else {
-                Uri.parse("liftinglog://app/${FitnessJournalScreen.WorkoutsScreen.route}" )
+                Uri.parse("liftinglog://app/${LiftingLogScreen.WorkoutsScreen.route}" )
             }
         }
         .let { notificationIntent ->
@@ -31,23 +27,27 @@ class TimerNotificationManager {
         }
 
         val cancelIntent = Intent(context, TimerService::class.java).apply {
-            action = CancelTimerAction
+            action = CANCEL_TIMER_ACTION
         }
         val cancelPendingIntent = PendingIntent.getForegroundService(
             context, 0, cancelIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        return NotificationCompat.Builder(context, TimerService.channelId)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setUsesChronometer(true)
+            .setChronometerCountDown(true)
             .setContentTitle(context.getString(R.string.x_seconds_on_timer, seconds.toString()))
             .setSmallIcon(R.drawable.fitness_center)
             .setContentIntent(mainIntent)
             .setSilent(seconds > 0)
             .setProgress(startingSeconds.toInt(), seconds.toInt(), false)
             .addAction(NotificationCompat.Action.Builder(
-                R.drawable.remove, "Cancel", cancelPendingIntent).build()
+                R.drawable.remove, context.getString(R.string.cancel), cancelPendingIntent).build()
             )
-            .setTimeoutAfter(2000)
             .setPriority(NotificationManager.IMPORTANCE_LOW)
             .setCategory(Notification.CATEGORY_SERVICE)
+            .setTimeoutAfter(3000)
             .build()
     }
 
@@ -55,6 +55,12 @@ class TimerNotificationManager {
         val notification = createNotification(context, workoutId, seconds, startingSeconds)
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(TimerService.notificationId, notification)
+        manager.notify(NOTIFICATION_ID, notification)
+    }
+
+    companion object {
+        const val NOTIFICATION_ID = 1
+        const val CHANNEL_ID = "TimerChannel"
+        const val CANCEL_TIMER_ACTION = "CANCEL_TIMER"
     }
 }

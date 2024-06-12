@@ -6,8 +6,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" tools:replace="android:maxSdkVersion"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <!-- Allows unlocking your device and activating its screen so UI tests can succeed -->
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
@@ -22,6 +23,7 @@
         android:name="android.permission.DUMP"
         tools:ignore="ProtectedPermissions" />
 
+
     <application
         android:name=".LiftingLogApplication"
         android:allowBackup="true"
@@ -31,7 +33,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FitnessJournal">
 
-        <service android:name=".services.TimerService"/>
+        <meta-data android:name="io.sentry.environment" android:value="debug"/>
+
+        <service
+            android:name=".services.TimerService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false"
+            >
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="@string/explanation_for_special_use"/>
+        </service>
 
         <activity
             android:maxAspectRatio="2.4"
@@ -66,6 +77,16 @@
             </intent-filter>
 
         </activity>
-    </application>
 
+        <!--
+        <receiver android:name=".services.WorkoutAppWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/timer_app_widget" />
+        </receiver>
+        -->
+    </application>
 </manifest>

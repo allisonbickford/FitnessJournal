@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan_name">plan name</string>
+    <string name="plan_error">There was an error loading this plan.</string>
+    <string name="start_workout">Start Workout</string>
+
+    <string name="add_lbs_to_hit_pr">add %1$s lbs to hit a PR!</string>
+    <string name="add_kg_to_hit_pr">add %1$s kg to hit a PR!</string>
+    <string name="plans">Plans</string>
+    <string name="rename_group">Rename Group</string>
+    <string name="exercise_group">Exercise Group</string>
+    <string name="sets">sets</string>
+    <string name="reps">reps</string>
+    <string name="min_reps">min reps</string>
+    <string name="max_reps">max reps</string>
+    <string name="reps_in_reserve">reps in reserve</string>
+    <string name="perceived_exertion">perceived exertion</string>
+    <string name="started_x">started %1$s</string>
+    <string name="finished_x">finished %1$s</string>
+    <string name="add_set">Add Set</string>
+    <string name="change_plates">change plates</string>
+    <string name="generic_error_message">An error occurred.</string>
+    <string name="name">name</string>
+    <string name="group_name">group name</string>
+    <string name="add_exercise">Add Exercise</string>
+
+    <string name="home">Home</string>
+    <string name="x_focused">%1$s focused</string>
+    <string name="includes_x">includes %1$s</string>
+    <string name="category">Category</string>
+    <string name="muscles">Muscles</string>
+
+    <string name="remove_x_confirm">Remove %1$s?</string>
+    <string name="remove_exercise_confirm">Remove exercise?</string>
+    <string name="cancel">Cancel</string>
+    <string name="remove">Remove</string>
+    <string name="ok">OK</string>
+    <string name="skip">Skip</string>
+    <string name="add_a_name_for_this_group_of_exercises_x">Add a name for this group of exercises: %1$s</string>
+    <string name="name_this_group">Name this group?</string>
+    <string name="seconds">seconds</string>
+    <string name="min_seconds">min seconds</string>
+    <string name="max_seconds">max seconds</string>
+    <string name="note">note</string>
+
+    <plurals name="x_exercises">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+
+</resources>
