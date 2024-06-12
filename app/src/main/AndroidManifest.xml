@@ -3,11 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
         android:name=".LiftingLogApplication"
@@ -18,7 +21,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FitnessJournal">
 
-        <service android:name=".services.TimerService"/>
+        <meta-data android:name="io.sentry.dsn" android:value="https://2b5b5452906e460c990ab3be16920d00@o1138653.ingest.sentry.io/4504395748343808" />
+        <!-- Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring. We recommend adjusting this value in production. -->
+        <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
+        <!-- Enable user interaction tracing to capture transactions for various UI events (such as clicks or scrolls). -->
+        <meta-data android:name="io.sentry.traces.user-interaction.enable" android:value="true" />
+        <!-- For Jetpack Compose Navigation -->
+        <meta-data android:name="io.sentry.traces.user-interaction.enable" android:value="true" />
+        <meta-data android:name="io.sentry.breadcrumbs.user-interaction" android:value="true" />
+        <meta-data android:name="io.sentry.session-tracking.timeout-interval-millis" android:value="60000" />
+
+        <service
+            android:name="com.catscoffeeandkitchen.ui.services.TimerService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false"
+            >
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="@string/explanation_for_special_use"/>
+        </service>
 
         <activity
             android:maxAspectRatio="2.4"
@@ -40,6 +60,16 @@
                 <data android:host="*" />
                 <data android:mimeType="*/*" />
                 <data android:pathPattern=".*\\.llbackup" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="app"
+                    android:scheme="liftinglog" />
             </intent-filter>
 
         </activity>

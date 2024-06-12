@@ -1,0 +1,145 @@
+package com.catscoffeeandkitchen.ui.list
+
+import android.text.format.DateUtils
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.catscoffeeandkitchen.models.SetType
+import com.catscoffeeandkitchen.models.Workout
+import com.catscoffeeandkitchen.ui.R
+import java.time.OffsetDateTime
+import kotlin.math.roundToInt
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun WorkoutSummaryItem(
+    workout: Workout,
+    onClick: () -> Unit = {},
+    onLongPress: () -> Unit = {},
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = { onClick() },
+                onLongClick = { onLongPress() },
+            )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(workout.name, style = MaterialTheme.typography.headlineMedium)
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                if (workout.completedAt == null) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp),
+                        shape = SuggestionChipDefaults.shape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        tonalElevation = 4.dp
+                    ) {
+                        Text(
+                            stringResource(R.string.in_progress),
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            when (val completed = workout.completedAt) {
+                null -> Text(
+                    stringResource(
+                        id = R.string.started_x,
+                        DateUtils.getRelativeTimeSpanString(
+                            workout.addedAt.toInstant().toEpochMilli(),
+                            OffsetDateTime.now().toInstant().toEpochMilli(),
+                            DateUtils.DAY_IN_MILLIS
+                        ).toString().lowercase()
+                    ),
+                    style = MaterialTheme.typography.labelMedium
+                )
+                else -> Text(
+                    stringResource(
+                        id = R.string.finished_x,
+                        DateUtils.getRelativeTimeSpanString(
+                            completed.toInstant().toEpochMilli(),
+                            OffsetDateTime.now().toInstant().toEpochMilli(),
+                            DateUtils.DAY_IN_MILLIS
+                        ).toString().lowercase()
+                    ),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+
+//            when (val plan = workout.plan) {
+//                null -> {}
+//                else -> {
+//                    Text("plan: ${plan.name}")
+//                    Text("${plan.entries.size} exercises")
+//                }
+//            }
+
+            if (workout.note?.isNotEmpty() == true) {
+                Text(
+                    workout.note!!,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+
+            workout.entries.filter { it.exercise != null }.forEach { entry ->
+                if (entry.sets.isEmpty()) {
+                    Text(
+                        entry.exercise?.name.orEmpty(), // should never be null
+                    )
+                } else {
+                    val warmupSets = entry.sets.filter { set -> set.type == SetType.WarmUp }
+                    val workingSets = entry.sets.filter { set -> set.type == SetType.Working }
+                    if (warmupSets.any()) {
+                        Text(
+                            "${warmupSets.size}x${warmupSets.map { it.reps }.average().roundToInt()} " +
+                                    "${entry.exercise?.name} Warm Up",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Text(
+                        "${workingSets.size}x${workingSets.map { it.reps }.average().roundToInt()} " +
+                                entry.exercise?.name,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WorkoutCardPreview() {
+    WorkoutSummaryItem(workout = Workout(
+        id = 1L,
+        name = "Best Workout Ever",
+        addedAt = OffsetDateTime.now().minusDays(30L),
+        completedAt = OffsetDateTime.now().minusDays(3),
+        note = "A good workout for a nice burn"
+    ))
+}

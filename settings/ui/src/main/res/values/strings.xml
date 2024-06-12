@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="privacy_policy_url" translatable="false">https://www.freeprivacypolicy.com/live/76250092-c861-411f-a986-98a055fd8b24</string>
+
+    <string name="timers">Timers</string>
+    <string name="timer_settings_description">The default timers to display during a workout.</string>
+    <string name="weight_unit">Weight Unit</string>
+    <string name="weight_unit_settings_description">Choose how weight is displayed.</string>
+
+    <string name="workout_data">Workout Data</string>
+    <string name="workout_data_settings_description">Import or export your workouts to continue your exercise program here or somewhere else.</string>
+    <string name="workout_data_disclaimer">Importing and exporting CSVs will only affect workouts, <i>not</i> plans or exercise groups</string>
+    <string name="local_data">Local Data</string>
+    <string name="restoring_data_warning">Restoring data will close the app so it can be completely restarted with the correct data.</string>
+    <string name="restoring_data_description">Backup and restore all your data. This method of backup will keep all your plans and exercise groups, but cannot be used by other programs.</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="restore_data">Restore Data</string>
+    <string name="app_closing">App Closing</string>
+    <string name="app_closing_description">The app will now close to refresh the database.</string>
+    <string name="start_a_timer">Start a Timer</string>
+    <string name="in_progress">In Progress</string>
+
+    <string name="save">save</string>
+
+
+</resources>
